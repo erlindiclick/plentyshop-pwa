@@ -4,7 +4,7 @@
     <NarrowContainer v-if="breadcrumbs?.length" class="p-4 md:px-0">
       <LazyUiBreadcrumbs :breadcrumbs="breadcrumbs" />
     </NarrowContainer>
-    <main>
+    <main id="main-content" tabindex="-1">
       <slot />
     </main>
     <UiNavbarBottom v-if="viewport.isLessThan('lg')" />
@@ -12,6 +12,7 @@
     <PreviewMode />
     <ClientOnly>
       <FooterBlock v-if="!route.meta.isBlockified" />
+      <AccessibilityToolbar />
     </ClientOnly>
     <QuickCheckout v-if="isOpen" :product="product" />
   </div>

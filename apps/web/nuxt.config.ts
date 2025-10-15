@@ -231,6 +231,8 @@ export default defineNuxtConfig({
     '@vee-validate/nuxt',
     '@vite-pwa/nuxt',
     'vuetify-nuxt-module',
+    './modules/AccessibilityModule',
+    './modules/CustomShopModule',
   ],
   vuetify: {
     moduleOptions: {

@@ -1,0 +1,116 @@
+/**
+ * Accessibility Styles
+ * Only applies styles when features are explicitly enabled by the user
+ */
+
+/* Skip to content link - only visible when focused */
+.skip-to-content {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  z-index: 10000;
+  padding: 12px 24px;
+  background: var(--primary-color, #062633);
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 0 0 4px 0;
+  transition: top 0.2s;
+}
+
+.skip-to-content:focus {
+  top: 0;
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Screen reader announcer - hidden visually */
+#a11y-announcer {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Font size classes - ONLY applied when user selects font size */
+html.font-small {
+  font-size: 14px;
+}
+
+html.font-large {
+  font-size: 18px;
+}
+
+html.font-extra-large {
+  font-size: 20px;
+}
+
+html.font-large,
+html.font-extra-large {
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+/* High contrast mode - ONLY applied when user enables it */
+html.high-contrast {
+  filter: contrast(1.5);
+}
+
+html.high-contrast * {
+  border-color: #000 !important;
+}
+
+html.high-contrast a {
+  text-decoration: underline;
+  color: #0000ff !important;
+}
+
+html.high-contrast a:visited {
+  color: #800080 !important;
+}
+
+html.high-contrast button,
+html.high-contrast input,
+html.high-contrast select,
+html.high-contrast textarea {
+  border: 2px solid #000 !important;
+  background-color: #fff !important;
+  color: #000 !important;
+}
+
+html.high-contrast img {
+  filter: contrast(1.2);
+}
+
+/* Focus visible - only when using keyboard navigation */
+.focus-visible {
+  outline: 3px solid var(--primary-color, #062633) !important;
+  outline-offset: 2px !important;
+}
+
+/* ARIA live regions - hidden visually */
+[aria-live] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Print accessibility */
+@media print {
+  .skip-to-content,
+  .accessibility-toolbar,
+  #a11y-announcer {
+    display: none !important;
+  }
+}
