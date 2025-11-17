@@ -30,10 +30,6 @@ export type CategoryDataContent = {
   };
   displayCategoryImage: string;
   image: {
-    wideScreen?: string;
-    desktop?: string;
-    tablet?: string;
-    mobile?: string;
     alt?: string;
     brightness?: number;
     fillMode?: 'fill' | 'fit';
@@ -52,3 +48,9 @@ export type CategoryDataContent = {
     background?: boolean;
   };
 };
+export interface CategoryData {
+  name: string;
+  description1: string;
+  description2: string;
+  shortDescription: string;
+}

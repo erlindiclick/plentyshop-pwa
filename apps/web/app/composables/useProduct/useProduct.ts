@@ -1,9 +1,12 @@
-import type { Product, ProductParams } from '@plentymarkets/shop-api';
+import type { Block, Product, ProductParams } from '@plentymarkets/shop-api';
 import { productGetters } from '@plentymarkets/shop-api';
 import { toRefs } from '@vueuse/shared';
 import type { UseProductReturn, UseProductState, FetchProduct } from '~/composables/useProduct/types';
 
 import { generateBreadcrumbs } from '~/utils/productHelper';
+import productTemplateData from '~/composables/useCategoryTemplate/productTemplateData.json';
+
+const useProductTemplateData = () => productTemplateData as Block[];
 
 /**
  * @description Composable managing product data
@@ -33,16 +36,31 @@ export const useProduct: UseProductReturn = (slug) => {
    * });
    * ```
    */
+
   const fetchProduct: FetchProduct = async (params: ProductParams) => {
     state.value.loading = true;
+    const { $i18n } = useNuxtApp();
+    const route = useRoute();
+    const { setupBlocks } = useCategoryTemplate(
+      route?.meta?.identifier as string,
+      route.meta.type as string,
+      useNuxtApp().$i18n.locale.value,
+    );
 
-    const { data, error } = await useAsyncData(`fetchProduct-${params.id}-${params.variationId}`, () =>
-      useSdk().plentysystems.getProduct(params),
+    const { data, error } = await useAsyncData(
+      `fetchProduct-${params.id}-${params.variationId}-${$i18n.locale.value}`,
+      () => useSdk().plentysystems.getProduct(params),
     );
     useHandleError(error.value ?? null);
 
+    const fetchedBlocks = data.value?.data.blocks;
+    await setupBlocks(
+      (fetchedBlocks && fetchedBlocks.length > 0 ? fetchedBlocks : useProductTemplateData()) as Block[],
+    );
+
     properties.setProperties(data.value?.data.properties ?? []);
     state.value.data = data.value?.data ?? ({} as Product);
+    handlePreviewProduct(state);
     state.value.loading = false;
     return state.value.data;
   };

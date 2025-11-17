@@ -8,9 +8,15 @@
   />
   <div v-if="filteredComponents.length === 0">
     <div v-if="selectedPaymentId === paypalPaymentId">
-      <PayPalExpressButton :disabled="disableBuyButton" type="Checkout" @validation-callback="handlePreparePayment" />
+      <PayPalExpressButton
+        :disabled="disableBuyButton"
+        type="Checkout"
+        location="checkoutPage"
+        @validation-callback="handlePreparePayment"
+      />
       <PayPalPayLaterBanner
         placement="payment"
+        location="checkoutPage"
         :amount="cartGetters.getTotal(cartGetters.getTotals(cart))"
         :commit="true"
       />
@@ -93,6 +99,7 @@ const { send } = useNotification();
 const {
   shippingPrivacyAgreement,
   customerWish,
+  customerSign,
   doAdditionalInformation,
   loading: additionalInformationLoading,
 } = useAdditionalInformation();
@@ -175,6 +182,7 @@ const handlePreparePayment = async (callback?: PayPalAddToCartCallback) => {
   await doAdditionalInformation({
     shippingPrivacyHintAccepted: shippingPrivacyAgreement.value,
     orderContactWish: customerWish.value,
+    orderCustomerSign: customerSign.value,
   });
 
   typeof callback === 'function' && callback ? callback(true) : await order();
@@ -215,6 +223,7 @@ const openPayPalCardDialog = async () => {
   await doAdditionalInformation({
     shippingPrivacyHintAccepted: shippingPrivacyAgreement.value,
     orderContactWish: customerWish.value,
+    orderCustomerSign: customerSign.value,
   });
 
   paypalCardDialog.value = true;
@@ -260,6 +269,7 @@ const validateOnClickComponents = async (event: MouseEvent, component: PaymentBu
   await doAdditionalInformation({
     shippingPrivacyHintAccepted: shippingPrivacyAgreement.value,
     orderContactWish: customerWish.value,
+    orderCustomerSign: customerSign.value,
   });
   if (readyToBuy() && event.target) {
     event.target.dispatchEvent(new CustomEvent('validated-click'));

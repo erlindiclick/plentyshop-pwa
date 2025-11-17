@@ -1,8 +1,10 @@
 <template>
   <SfAccordionItem v-if="facet" v-model="open">
     <template #summary>
-      <div class="flex justify-between p-2 mb-2 select-none">
-        <p class="mb-2 font-medium typography-headline-5">{{ facetGetters.getName(facet) }}</p>
+      <div class="flex justify-between py-1 px-4 mb-2 select-none bg-primary-50/50">
+        <h6 class="py-1 rounded-none uppercase typography-headline-6 font-bold tracking-widest select-none">
+          {{ facetGetters.getName(facet) }}
+        </h6>
         <SfIconChevronLeft :class="['text-neutral-500', open ? 'rotate-90' : '-rotate-90']" />
       </div>
     </template>
@@ -35,7 +37,7 @@
       </SfListItem>
     </div>
 
-    <form v-else-if="facetGetters.getType(facet) === 'price'" class="mb-4" @submit.prevent="updatePriceFilter">
+    <form v-else-if="facetGetters.getType(facet) === 'price'" class="mb-4 px-4" @submit.prevent="updatePriceFilter">
       <div class="mb-3">
         <label for="min">
           <UiFormLabel class="text-start">{{ t('min') }}</UiFormLabel>
