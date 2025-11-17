@@ -3,22 +3,16 @@
  * Provides easy access to accessibility utilities
  */
 
-
 export const useAccessibility = () => {
   const { $accessibility } = useNuxtApp();
-
 
   return {
     // State
     highContrastMode: computed(() => $accessibility.highContrastMode.value),
-    YellowBlackContrastMode: computed(()=> $accessibility.YellowBlackContrastMode.value),
     fontSize: computed(() => $accessibility.fontSize.value),
-    //
-    
 
     // Methods
     toggleHighContrast: () => $accessibility.toggleHighContrast(),
-    toggleYellowBlackContrast:()=> $accessibility.toggleYellowBlackContrast(),
     setFontSize: (size: 'small' | 'normal' | 'large' | 'extra-large') => $accessibility.setFontSize(size),
     increaseFontSize: () => $accessibility.increaseFontSize(),
     decreaseFontSize: () => $accessibility.decreaseFontSize(),
@@ -28,6 +22,5 @@ export const useAccessibility = () => {
     trapFocus: (element: HTMLElement) => $accessibility.trapFocus(element),
     prefersReducedMotion: () => $accessibility.prefersReducedMotion(),
     prefersDarkMode: () => $accessibility.prefersDarkMode(),
-
   };
 };

@@ -4,22 +4,13 @@
 
 export type FontSize = 'small' | 'normal' | 'large' | 'extra-large';
 export type AnnouncePriority = 'polite' | 'assertive';
-export type TextSpacingLevel = 'normal' | 'medium' | 'heavy';
 
 export interface AccessibilitySettings {
   highContrastMode: boolean;
   fontSize: FontSize;
-  lineHeight: boolean;
-  cursorStyle: boolean;
-  newTextSpacing: TextSpacingLevel;
-  YellowBlackContrastMode: boolean;
 }
 
 export interface AccessibilityPlugin {
-  YellowBlackContrastMode: Ref<boolean>;
-  toggleYellowBlackContrast(): void;
-  cursorStyle: Ref<boolean>;
-  textSpacing: Ref<boolean>
   highContrastMode: Ref<boolean>;
   fontSize: Ref<FontSize>;
   init: () => void;
@@ -38,8 +29,6 @@ export interface AccessibilityPlugin {
   trapFocus: (element: HTMLElement) => () => void;
   prefersReducedMotion: () => boolean;
   prefersDarkMode: () => boolean;
-  toggleCursorStyle: () => void;
-
 }
 
 declare module '#app' {

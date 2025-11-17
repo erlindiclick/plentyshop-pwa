@@ -10,20 +10,12 @@
  * - Font size adjustments
  */
 
-
 export default defineNuxtPlugin((nuxtApp) => {
   const accessibility = {
     // State
     highContrastMode: ref(false),
-    YellowBlackContrastMode: ref(false),
     fontSize: ref('normal' as 'small' | 'normal' | 'large' | 'extra-large'),
-    lineHeight: ref(false),
-    cursorStyle: ref(false),
-    newTextSpacing: ref(0),
 
-
-
-  
     /**
      * Initialize accessibility features
      */
@@ -34,7 +26,6 @@ export default defineNuxtPlugin((nuxtApp) => {
         this.createSkipLink();
         this.setupFocusManagement();
         this.applySettings();
-        
       }
     },
 
@@ -48,9 +39,6 @@ export default defineNuxtPlugin((nuxtApp) => {
           const settings = JSON.parse(saved);
           this.highContrastMode.value = settings.highContrastMode ?? false;
           this.fontSize.value = settings.fontSize ?? 'normal';
-          this.lineHeight.value = settings.lineHeight ?? false;
-          this.newTextSpacing.value = settings.newTextSpacing ?? 0;
-          this.YellowBlackContrastMode.value = settings.YellowBlackContrastMode ?? false;
         }
       } catch (error) {
         console.warn('Failed to load accessibility settings:', error);
@@ -65,9 +53,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         const settings = {
           highContrastMode: this.highContrastMode.value,
           fontSize: this.fontSize.value,
-          lineHeight: this.lineHeight.value,
-          YellowBlackContrastMode:this.YellowBlackContrastMode,
-          };
+        };
         localStorage.setItem('accessibility-settings', JSON.stringify(settings));
       } catch (error) {
         console.warn('Failed to save accessibility settings:', error);
@@ -87,23 +73,8 @@ export default defineNuxtPlugin((nuxtApp) => {
         html.classList.add('high-contrast');
       } else {
         html.classList.remove('high-contrast');
-      }  
-      if (this.YellowBlackContrastMode.value) {
-        html.classList.add('yellow-black-contrast');
-      } else {
-        html.classList.remove('yellow-black-contrast');
-      }      
-      if (this.cursorStyle.value) {
-      document.documentElement.classList.add('custom-cursor');
-      } else {
-      document.documentElement.classList.remove('custom-cursor');
       }
-      document.querySelectorAll('p, span, div').forEach(el => {
-      el.classList.remove('spacing-medium-new', 'spacing-heavy-new');
-      if (this.newTextSpacing.value === 1) el.classList.add('spacing-medium-new');
-      if (this.newTextSpacing.value === 2) el.classList.add('spacing-heavy-new');   
-      });
-    
+
       // Apply font size
       html.classList.remove('font-small', 'font-normal', 'font-large', 'font-extra-large');
       html.classList.add(`font-${this.fontSize.value}`);
@@ -119,26 +90,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       this.applySettings();
       this.announce(this.highContrastMode.value ? 'High contrast mode enabled' : 'High contrast mode disabled');
     },
-    toggleYellowBlackContrast(){
-      this.YellowBlackContrastMode.value = !this.YellowBlackContrastMode.value;
-      this.applySettings();
-      this.announce(this.YellowBlackContrastMode.value ? 'Y/B contrast mode enabled' : 'Y/B contrast mode disabled');
-    },
 
-
- 
-   toggleCursorStyle(force?: boolean) {
-  if (typeof force === 'boolean') {
-    this.cursorStyle.value = force;
-  } else {
-    this.cursorStyle.value = !this.cursorStyle.value;
-  }
-  this.applySettings();
-  this.announce(
-    this.cursorStyle.value ? 'Custom cursor enabled' : 'Custom cursor disabled'
-  );
-},
- 
     /**
      * Set font size
      */
@@ -175,19 +127,9 @@ export default defineNuxtPlugin((nuxtApp) => {
      */
     reset() {
       this.highContrastMode.value = false;
-      this.YellowBlackContrastMode.value=false;
       this.fontSize.value = 'normal';
-      this.toggleCursorStyle(false); 
-      const allImages = document.querySelectorAll('img');
-      allImages.forEach(img => {
-      if (!img.closest('.accessibility-toolbar')) {
-      img.style.visibility = 'visible';
-            
       this.applySettings();
       this.announce('Accessibility settings reset to defaults');
-    }
-  });
-
     },
 
     /**
@@ -210,8 +152,6 @@ export default defineNuxtPlugin((nuxtApp) => {
 
       document.body.insertBefore(skipLink, document.body.firstChild);
     },
-
-
 
     /**
      * Setup keyboard navigation improvements
