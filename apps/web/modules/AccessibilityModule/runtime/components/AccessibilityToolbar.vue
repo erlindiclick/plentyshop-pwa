@@ -101,18 +101,74 @@
             <span class="accessibility-switch-label">High Contrast Mode</span>
           </label>
         </div>
-
-        <!-- Keyboard Shortcuts Info -->
+          <!-- Yellow AND BLACK Contrast Toggle -->
         <div class="accessibility-section">
-          <h3 class="accessibility-section-title">Keyboard Shortcuts</h3>
-          <ul class="accessibility-shortcuts">
-            <li><kbd>Ctrl</kbd> + <kbd>+</kbd> Increase text size</li>
-            <li><kbd>Ctrl</kbd> + <kbd>-</kbd> Decrease text size</li>
-            <li><kbd>Esc</kbd> Close dialogs/menus</li>
-            <li><kbd>Tab</kbd> Navigate forward</li>
-            <li><kbd>Shift</kbd> + <kbd>Tab</kbd> Navigate backward</li>
-          </ul>
+          <label class="accessibility-switch">
+            <input
+              type="checkbox"
+              :checked="YellowBlackContrastEnabled"
+              @change="toggleYellowBlackContrast"
+              aria-label="Toggle yellow-black contrast mode"
+            />
+            <span class="accessibility-switch-slider"></span>
+            <span class="accessibility-switch-label">Y/B Contrast Mode</span>
+          </label>
         </div>
+        <!-- Letter Spacing Slider -->
+        <h3 class="accessibility-section-title">Letter Spacing</h3>
+        <input 
+        type="range" 
+        min="0" 
+        max="4" 
+        step="0.1" 
+        v-model="letterSpacingLevel" 
+        @input="updateLetterSpacing"
+        class="letter-spacing-slider"
+        aria-label="Adjust letter spacing"
+        />
+  
+       <br>
+       <h3 class="accessibility-section-title">Line Spacing</h3>
+       <input
+       type="range"
+       min="1"
+       max="3"
+       step="0.1"
+       v-model="lineSpacingLevel"
+       @input="updateLineSpacing"
+       class="line-spacing-slider"
+       aria-label="Adjust line spacing" />
+
+      <div class="accessibility-buttons flex gap-2">
+      </div>
+      <div class="accessibility-buttons">
+      <!-- Cursor Style Toggle Button -->
+      <button
+      class="accessibility-button"
+      :class="{ active: states.cursorStyle }"
+      @click="toggleCursorStyle"
+      >
+      <svg class="icon-cursor"
+       xmlns="http://www.w3.org/2000/svg"
+       width="32" height="32" 
+       viewBox="0 0 32 32">
+       <path fill="currentColor" d="M23 28a1 1 0 0 1-.71-.29l-6.13-6.14l-3.33 5a1 1 0 0 1-1 .44a1 1 0 0 1-.81-.7l-6-20A1 1 0 0 1 6.29 5l20 6a1 1 0 0 1 .7.81a1 1 0 0 1-.44 1l-5 3.33l6.14 6.13a1 1 0 0 1 0 1.42l-4 4A1 1 0 0 1 23 28m0-2.41L25.59 23l-7.16-7.15l5.25-3.5L7.49 7.49l4.86 16.19l3.5-5.25Z"/></svg>
+      </button>
+      <!-- Hide Images Button -->
+      <button
+      class="accessibility-button"
+      :class="{ active: states.hideImages }"
+      @click="toggleHideImages"
+      >
+      <svg class="hide-images"
+       xmlns="http://www.w3.org/2000/svg"
+       width="32"
+       height="32" 
+       viewBox="0 0 24 24">
+      <path fill="currentColor" d="M19 5v11.17l2 2V5c0-1.1-.9-2-2-2H5.83l2 2zM2.81 2.81L1.39 4.22L3 5.83V19c0 1.1.9 2 2 2h13.17l1.61 1.61l1.41-1.41zM5 19V7.83l7.07 7.07l-.82 1.1L9 13l-3 4h8.17l2 2z"/></svg>
+      </button>
+      </div>
+
 
         <!-- Reset Button -->
         <div class="accessibility-section">
@@ -127,11 +183,52 @@
 </template>
 
 <script setup lang="ts">
+//
 const { $accessibility } = useNuxtApp();
 const isOpen = ref(false);
+const letterSpacingLevel = ref(0);
+const lineSpacingLevel = ref(0);
+const isHighContrast = ref(false);
+const isYellowBlackContrast=ref(false);
+
+
+const states = reactive({
+  newTextSpacing: 0,
+  lineHeight: false,
+  cursorStyle: false,
+  hideImages: false,
+});
+
+const updateLetterSpacing = () => {
+  const value = `${letterSpacingLevel.value}px`; 
+  document.documentElement.style.setProperty('--global-letter-spacing', value);
+};
+const updateLineSpacing = () => {
+  document.documentElement.style.setProperty('--global-line-height', lineSpacingLevel.value.toString());
+};
 
 const highContrastEnabled = computed(() => $accessibility.highContrastMode.value);
+const YellowBlackContrastEnabled = computed(()=>$accessibility.YellowBlackContrastMode.value)
 const currentFontSize = computed(() => $accessibility.fontSize.value);
+
+
+///
+const toggleCursorStyle = () => {
+  states.cursorStyle = !states.cursorStyle;
+  ($accessibility as any).toggleCursorStyle?.();
+};
+const toggleHideImages = () => {
+  states.hideImages = !states.hideImages;
+
+  const allImages = document.querySelectorAll('img');
+
+  allImages.forEach(img => {
+    const isInsideToolbar = img.closest('.accessibility-toolbar');
+    if (!isInsideToolbar) {
+      img.style.visibility = states.hideImages ? 'hidden' : 'visible';
+    }
+  });
+};
 
 const toggleToolbar = () => {
   isOpen.value = !isOpen.value;
@@ -146,6 +243,9 @@ const toggleToolbar = () => {
 const toggleHighContrast = () => {
   $accessibility.toggleHighContrast();
 };
+const toggleYellowBlackContrast = () => {
+  $accessibility.toggleYellowBlackContrast();
+};
 
 const setFontSize = (size: 'small' | 'normal' | 'large' | 'extra-large') => {
   $accessibility.setFontSize(size);
@@ -153,9 +253,40 @@ const setFontSize = (size: 'small' | 'normal' | 'large' | 'extra-large') => {
 
 const resetSettings = () => {
   $accessibility.reset();
+  states.cursorStyle = false;
+  document.documentElement.classList.remove('custom-cursor');
+  states.hideImages = false;
+  const allImages = document.querySelectorAll('img');
+  allImages.forEach(img => {
+    if (!img.closest('.accessibility-toolbar')) {
+      img.style.visibility = 'visible';
+    }
+  });
+  letterSpacingLevel.value = 0; 
+  updateLetterSpacing();
+  lineSpacingLevel.value=1.5;
+  updateLineSpacing();
 };
 
 // Close on escape key
+onMounted(() => {
+  const saved = localStorage.getItem('high-contrast-mode')
+  if (saved) {
+    isHighContrast.value = JSON.parse(saved)
+    if (isHighContrast.value) {
+      document.documentElement.classList.add('high-contrast')
+    }
+  }
+})
+onMounted(() => {
+  const saved = localStorage.getItem('yellow- black-contrast-mode')
+  if (saved) {
+    isYellowBlackContrast.value = JSON.parse(saved)
+    if (isYellowBlackContrast.value) {
+      document.documentElement.classList.add('yellow-black-contrast')
+    }
+  }
+})
 onMounted(() => {
   const handleEscape = () => {
     if (isOpen.value) {
@@ -169,6 +300,15 @@ onMounted(() => {
     window.removeEventListener('accessibility:escape', handleEscape);
   });
 });
+
+ const spans = document.querySelectorAll('.spacing-indicator span');
+
+  spans.forEach(span => {
+    span.addEventListener('click', () => {
+      spans.forEach(s => s.classList.remove('active'));
+      span.classList.add('active');
+    });
+  });
 </script>
 
 <style scoped>

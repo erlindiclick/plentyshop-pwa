@@ -4,7 +4,7 @@ A comprehensive accessibility plugin for PlentyONE PWA Shop that provides WCAG 2
 
 ## Features
 
-### 🎨 Visual Adjustmentszsdsa
+### 🎨 Visual Adjustments
 
 - **Font Size Control**: 4 levels (small, normal, large, extra-large)
 - **High Contrast Mode**: Enhanced contrast for better readability
