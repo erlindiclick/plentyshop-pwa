@@ -401,7 +401,7 @@ body {
   letter-spacing: var(--global-letter-spacing);
   
 }
-body, p, h1, h2, h3, h4, h5, h6, span, li, a, div {
+body, p, h1, h2, h3, h4, h5, h6, li, a, div {
   line-height: var(--global-line-height) !important;
 }
 
@@ -480,7 +480,29 @@ body, p, h1, h2, h3, h4, h5, h6, span, li, a, div {
   background-color: #e5e7eb;
   border-color: #9ca3af;
 }
-
+[data-testid="wishlist-badge"] {
+  line-height: normal;      /* ignore parent's line-height */
+  letter-spacing: 0;        /* ignore parent's letter-spacing */
+  display: inline-block;    /* ensures proper spacing and alignment */
+  vertical-align: middle;   /* optional: aligns nicely with icon */
+}
+[data-testid="badge"] {
+  line-height: normal;        /* ignore parent's line-height */
+  letter-spacing: 0;          /* ignore parent's letter-spacing */
+  display: inline-flex;       /* for proper centering */
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;     /* optional: aligns nicely */
+  position: absolute;         /* keep it positioned */
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%); /* fine-tune badge position */
+  min-width: 16px;            /* keeps badge square even if 0/1-digit */
+  height: 16px;               /* match min-width for circle */
+  padding: 0 4px;             /* optional: horizontal spacing */
+  font-size: 8px;             /* matches your text-[8px] */
+  border-radius: 50%;         /* makes it circular */
+}
 
 /* Print accessibility */
 @media print {

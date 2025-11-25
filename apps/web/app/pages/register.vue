@@ -286,6 +286,7 @@
       </form>
     </div>
   </NuxtLayout>
+    <AccessibilityToolbar />
 </template>
 
 <script setup lang="ts">

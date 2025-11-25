@@ -157,7 +157,7 @@
       <!-- Hide Images Button -->
       <button
       class="accessibility-button"
-      :class="{ active: states.hideImages }"
+      :class="{ active: hideButtonActive }"
       @click="toggleHideImages"
       >
       <svg class="hide-images"
@@ -190,7 +190,9 @@ const letterSpacingLevel = ref(0);
 const lineSpacingLevel = ref(0);
 const isHighContrast = ref(false);
 const isYellowBlackContrast=ref(false);
-
+const STORAGE_KEY = 'accessibility-hide-images';
+const hideImages = ref(false); // current state
+const hideButtonActive = ref(false); // ui state
 
 const states = reactive({
   newTextSpacing: 0,
@@ -201,17 +203,37 @@ const states = reactive({
 });
 
 const updateLetterSpacing = () => {
-  const value = `${letterSpacingLevel.value}px`; 
-  document.documentElement.style.setProperty('--global-letter-spacing', value);
+  document.documentElement.style.setProperty('--global-letter-spacing', `${letterSpacingLevel.value}px`);
 };
 const updateLineSpacing = () => {
   document.documentElement.style.setProperty('--global-line-height', lineSpacingLevel.value.toString());
 };
+watch(letterSpacingLevel, (val) => {
+  document.documentElement.style.setProperty('--global-letter-spacing', `${val}px`);
+  localStorage.setItem('letter-spacing', val.toString());
+});
+
+watch(lineSpacingLevel, (val) => {
+  document.documentElement.style.setProperty('--global-line-height', val.toString());
+  localStorage.setItem('line-spacing', val.toString());
+});
+onMounted(() => {
+  const savedLetterSpacing = localStorage.getItem('letter-spacing');
+  if (savedLetterSpacing !== null) {
+    letterSpacingLevel.value = parseFloat(savedLetterSpacing);
+    updateLetterSpacing();
+  }
+
+  const savedLineSpacing = localStorage.getItem('line-spacing');
+  if (savedLineSpacing !== null) {
+    lineSpacingLevel.value = parseFloat(savedLineSpacing);
+    updateLineSpacing();
+  }
+});
 
 const highContrastEnabled = computed(() => $accessibility.highContrastMode.value);
 const YellowBlackContrastEnabled = computed(()=>$accessibility.YellowBlackContrastMode.value)
 const currentFontSize = computed(() => $accessibility.fontSize.value);
-
 
 ///
 const toggleCursorStyle = () => {
@@ -219,17 +241,32 @@ const toggleCursorStyle = () => {
   ($accessibility as any).toggleCursorStyle?.();
 };
 const toggleHideImages = () => {
-  states.hideImages = !states.hideImages;
-
+  hideImages.value = !hideImages.value;
+  hideButtonActive.value = hideImages.value;
+  applyHideImages();
+};
+const applyHideImages = () => {
   const allImages = document.querySelectorAll('img');
-
   allImages.forEach(img => {
-    const isInsideToolbar = img.closest('.accessibility-toolbar');
-    if (!isInsideToolbar) {
-      img.style.visibility = states.hideImages ? 'hidden' : 'visible';
+    if (!img.closest('.accessibility-toolbar')) {
+      img.style.visibility = hideImages.value ? 'hidden' : 'visible';
     }
   });
 };
+const route = useRoute();
+watch(route, () => {
+  if (hideImages.value) {
+    applyHideImages();
+  }
+});
+watch(hideImages, (val) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(!!val));
+  } catch (e) {
+    // ignore storage errors (e.g. incognito)
+  }
+  applyHideImages();
+});
 
 const toggleToolbar = () => {
   isOpen.value = !isOpen.value;
@@ -267,6 +304,12 @@ const resetSettings = () => {
   updateLetterSpacing();
   lineSpacingLevel.value=1.5;
   updateLineSpacing();
+ hideImages.value = false;
+  hideButtonActive.value = false;
+  applyHideImages();
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {}
 };
 
 // Close on escape key
@@ -278,7 +321,20 @@ onMounted(() => {
       document.documentElement.classList.add('high-contrast')
     }
   }
+  
 })
+onMounted(() => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved !== null) {
+      hideImages.value = JSON.parse(saved);
+      hideButtonActive.value = hideImages.value;
+    }
+  } catch (e) {
+    hideImages.value = false;
+    hideButtonActive.value = false;
+  }
+});
 
 onMounted(() => {
   const handleEscape = () => {
@@ -346,13 +402,33 @@ onMounted(() => {
   bottom: 90px;
   right: 20px;
   width: 320px;
-  max-height: calc(100vh - 120px);
+  max-height: 80vh; 
   background: white;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
   z-index: 10000;
+}
+
+.accessibility-panel-header {
+  border-radius: 12px;
+  flex: 0 0 auto;
+  padding: 16px 20px;
+  background: var(--primary-color, #062633);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.accessibility-panel-title { 
+  font-size: 18px;
+  font-weight: 600; 
+  margin: 0; }
+.accessibility-panel-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 20px;
 }
 
 @keyframes slideUp {
@@ -400,7 +476,7 @@ onMounted(() => {
 }
 
 .accessibility-panel-content {
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 200px); 
   overflow-y: auto;
   padding: 20px;
 }
